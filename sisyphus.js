@@ -174,14 +174,12 @@
 					}
 				
 					self.targets.each( function() {
-						var targetFormId = $( this ).attr( "id" );
-						var fieldsToProtect = $( this ).find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" );
+						var fieldsToSave = $(this.elements).not(":submit").not(":reset").not(":button");
+						if (self.options.excludeFields) {
+							fieldsToSave = fieldsToSave.not(self.options.excludeFields);
+						}
 						
-						fieldsToProtect.each( function() {
-							if ( $.inArray( this, self.options.excludeFields ) !== -1 ) {
-								// Returning non-false is the same as a continue statement in a for loop; it will skip immediately to the next iteration.
-								return true;
-							}
+						fieldsToSave.each( function() {
 							var field = $( this );
 							if ( field.is( ":text" ) || field.is( "textarea" ) ) {
 								if ( ! self.options.timeout ) {
@@ -206,7 +204,11 @@
 					var self = this;
 					self.targets.each( function() {
 						var targetFormId = $( this ).attr( "id" );
-                        var value = $(this).serialize();
+						var fieldsToSave = $(this.elements).not(":submit").not(":reset").not(":button");
+						if (self.options.excludeFields) {
+							fieldsToSave = fieldsToSave.not(self.options.excludeFields);
+						}
+						var value = fieldsToSave.serialize();
                         var prefix = self.href + targetFormId + self.options.customKeyPrefix;
                         self.saveToBrowserStorage( prefix, value, false );
 					} );
