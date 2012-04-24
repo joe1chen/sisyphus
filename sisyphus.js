@@ -13,7 +13,7 @@
 
 	$.fn.sisyphus = function( options ) {
 		var sisyphus = Sisyphus.getInstance();
-		sisyphus.setOptions( options )
+		sisyphus.setOptions( options );
 		sisyphus.protect( this );
 		return sisyphus;
 	};
@@ -34,7 +34,7 @@
     } catch ( e ) {
         return false;
     }
-  }
+  };
 
  /**
    * Set data to browser storage
@@ -46,7 +46,7 @@
    */
   browserStorage.set = function( key, value ) {
     if ( typeof $.jStorage === "object" ) {
-      $.jStorage.set( key, value + "" )
+      $.jStorage.set( key, value + "" );
     } else {
       try {
         localStorage.setItem( key, value + "" );
@@ -54,7 +54,7 @@
         //QUOTA_EXCEEDED_ERR
       }
     }
-  }
+  };
 
   /**
    * Get data from browser storage by specified key
@@ -68,9 +68,9 @@
       var result = $.jStorage.get( key );
       return result ? result.toString() : result;
     } else {
-      return localStorage.getItem( key )
+      return localStorage.getItem( key );
     }
-  }
+  };
 
   /**
    * Delete data from browser storage by specified key
@@ -85,7 +85,7 @@
     } else {
       localStorage.removeItem( key );
     }
-  }
+  };
 
 	Sisyphus = ( function() {
 		var params = {
@@ -191,7 +191,7 @@
                                 self.bindSaveDataOnChange( field );
 							}
 						} );
-					} )
+					} );
 				},
 			
 			
@@ -265,11 +265,11 @@
 					else if ( $.browser.msie == null ) {
 						field.get(0).oninput = function() {
                             self.saveAllData();
-						}
+						};
 					} else {
 						field.get(0).onpropertychange = function() {
                             self.saveAllData();
-						}
+						};
 					}
 				},
 			
@@ -338,10 +338,8 @@
 						var formId = target.attr( "id" );
 						$( this ).bind( "submit reset", function() {
                             self.releaseData( formId );
-						} )
-					} )
-				
-				
+						} );
+					} );				
 				},
 
 				/**
@@ -355,7 +353,7 @@
 						var target = $( this );
 						var formId = target.attr( "id" );
                         self.releaseData( formId );
-					} )
+					} );
 				},
 
 				/**
