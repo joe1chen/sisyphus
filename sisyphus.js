@@ -250,28 +250,14 @@
          */
         bindSaveDataImmediately: function( field, prefix ) {
           var self = this;
-          var editor;
-          try { editor = $(field.get(0)).ckeditorGet(); } catch(e) {}
-          //for ckeditor
-          if(editor) {
-            editor.on('saveSnapshot', function(evt) {
+          if ( $.browser.msie == null ) {
+            field.on('input', function() {
               self.saveAllData();
             });
-            editor.getCommand('undo').on( 'afterUndo', function(e) {
-              self.saveAllData();
-            });
-            editor.getCommand('redo').on( 'afterRedo', function(e) {
-              self.saveAllData();
-            });
-          }
-          else if ( $.browser.msie == null ) {
-            field.get(0).oninput = function() {
-              self.saveAllData();
-            };
           } else {
-            field.get(0).onpropertychange = function() {
+            field.on('propertychange', function() {
               self.saveAllData();
-            };
+            });
           }
         },
 
