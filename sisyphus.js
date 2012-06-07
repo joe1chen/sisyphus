@@ -109,7 +109,9 @@
 						customKeyPrefix: "",
 						timeout: 0,
 						autoRelease: true,
+						name: null,
 						onSave: function() {},
+						onBeforeRestore: function() {},
 						onRestore: function() {},
 						onRelease: function() {}
 					};
@@ -142,7 +144,7 @@
 					targets = targets || {};
 					var self = this;
 					this.targets = this.targets || [];
-					this.href = location.hostname + location.pathname + location.search;
+					this.href = this.options.name || location.hostname + location.pathname + location.search;
 				
 					this.targets = $.merge( this.targets, targets );
 					this.targets = $.unique( this.targets );
@@ -179,7 +181,7 @@
 				
 					self.targets.each( function() {
 						var targetFormId = $( this ).attr( "id" );
-						var fieldsToProtect = $( this ).find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" );
+						var fieldsToProtect = $( this ).find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" ).not( ":file" );
 						
 						fieldsToProtect.each( function() {
 							if ( $.inArray( this, self.options.excludeFields ) !== -1 ) {
@@ -211,19 +213,19 @@
 					var self = this;
 					self.targets.each( function() {
 						var targetFormId = $( this ).attr( "id" );
-						var fieldsToProtect = $( this ).find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" );
-						
+						var fieldsToProtect = $( this ).find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" ).not( ":file" );
+
 						fieldsToProtect.each( function() {
-							if ( $.inArray( this, self.options.excludeFields ) !== -1 ) {
-								// Returning non-false is the same as a continue statement in a for loop; it will skip immediately to the next iteration.
+							var field = $( this );
+							// Returning non-false is the same as a continue statement in a for loop; it will skip immediately to the next iteration.
+							if ( $.inArray( this, self.options.excludeFields ) !== -1 || field.attr( "name" ) === undefined ) {
 								return true;
 							}
-							var field = $( this );
 							var prefix = self.href + targetFormId + field.attr( "name" ) + self.options.customKeyPrefix;
 							var value = field.val();
-						
+
 							if ( field.is(":checkbox") ) {
-								if ( field.attr( "name" ).indexOf( "[" ) != -1 ) {
+								if ( field.attr( "name" ).indexOf( "[" ) !== -1 ) {
 									value = [];
 									$( "[name='" + field.attr( "name" ) +"']:checked" ).each( function() {
 										value.push( $( this ).val() );
@@ -256,11 +258,15 @@
 				restoreAllData: function() {
 					var self = this;
 					var restored = false;
-				
+					
+					if ( $.isFunction( self.options.onBeforeRestore ) ) {
+						self.options.onBeforeRestore.call();
+					}
+					
 					self.targets.each( function() {
 						var target = $( this );
 						var targetFormId = target.attr( "id" );
-						var fieldsToProtect = target.find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" );
+						var fieldsToProtect = target.find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" ).not( ":file" );
 						
 						fieldsToProtect.each( function() {
 							if ( $.inArray( this, self.options.excludeFields ) !== -1 ) {
@@ -292,6 +298,9 @@
 				 * @return void
 				 */
 				restoreFieldsData: function( field, resque ) {
+					if ( field.attr( "name" ) === undefined ) {
+						return false;
+					}
 					if ( field.is( ":checkbox" ) && resque !== "false" && field.attr( "name" ).indexOf( "[" ) === -1 ) {
 						field.attr( "checked", "checked" );
 					} else if ( field.is( ":radio" ) ) {
@@ -405,7 +414,7 @@
 					var self = this;
 					self.targets.each( function( i ) {
 						var target = $( this );
-						var fieldsToProtect = target.find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" );
+						var fieldsToProtect = target.find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" ).not( ":file" );
 						var formId = target.attr( "id" );
 						$( this ).bind( "submit reset", function() {
 							self.releaseData( formId, fieldsToProtect );
@@ -424,7 +433,7 @@
 					var self = this;
 					self.targets.each( function( i ) {
 						var target = $( this );
-						var fieldsToProtect = target.find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" );
+						var fieldsToProtect = target.find( ":input" ).not( ":submit" ).not( ":reset" ).not( ":button" ).not( ":file" );
 						var formId = target.attr( "id" );
 						self.releaseData( formId, fieldsToProtect );
 					} )
