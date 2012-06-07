@@ -109,7 +109,9 @@
             customKeyPrefix: "",
             timeout: 0,
             autoRelease: true,
+            name: null,
             onSave: function() {},
+            onBeforeRestore: function() {},
             onRestore: function() {},
             onRelease: function() {}
           };
@@ -142,7 +144,7 @@
           targets = targets || {};
           var self = this;
           this.targets = this.targets || [];
-          this.href = location.hostname + location.pathname + location.search;
+          this.href = this.options.name || location.hostname + location.pathname + location.search;
 
           this.targets = $.merge( this.targets, targets );
           this.targets = $.unique( this.targets );
@@ -209,7 +211,7 @@
               fieldsToSave = fieldsToSave.not(self.options.excludeFields);
             }
             var value = fieldsToSave.serialize();
-            var prefix = self.href + targetFormId + self.options.customKeyPrefix;
+            var prefix = self.href + targetFormId + field.attr( "name" ) + self.options.customKeyPrefix;
             self.saveToBrowserStorage( prefix, value, false );
           } );
           if ( $.isFunction( self.options.onSave ) ) {
@@ -226,10 +228,14 @@
         restoreAllData: function() {
           var self = this;
 
+          if ( $.isFunction( self.options.onBeforeRestore ) ) {
+            self.options.onBeforeRestore.call();
+          }
+          
           self.targets.each( function() {
             var target = $( this );
             var targetFormId = target.attr( "id" );
-            var prefix = self.href + targetFormId + self.options.customKeyPrefix;
+            var prefix = self.href + targetFormId + field.attr( "name" ) + self.options.customKeyPrefix;
             var resque = self.browserStorage.get( prefix );
             if ( resque ) {
               target.deserialize(resque, function () {
@@ -355,7 +361,7 @@
         releaseData: function( targetFormId, fieldsToProtect ) {
           var released = false;
           var self = this;
-          var prefix = self.href + targetFormId + self.options.customKeyPrefix;
+          var prefix = self.href + targetFormId + field.attr( "name" ) + self.options.customKeyPrefix;
           self.browserStorage.remove( prefix );
           released = true;
 
