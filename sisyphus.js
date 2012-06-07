@@ -211,7 +211,7 @@
               fieldsToSave = fieldsToSave.not(self.options.excludeFields);
             }
             var value = fieldsToSave.serialize();
-            var prefix = self.href + targetFormId + field.attr( "name" ) + self.options.customKeyPrefix;
+            var prefix = self.href + targetFormId + self.options.customKeyPrefix;
             self.saveToBrowserStorage( prefix, value, false );
           } );
           if ( $.isFunction( self.options.onSave ) ) {
@@ -235,7 +235,7 @@
           self.targets.each( function() {
             var target = $( this );
             var targetFormId = target.attr( "id" );
-            var prefix = self.href + targetFormId + field.attr( "name" ) + self.options.customKeyPrefix;
+            var prefix = self.href + targetFormId + self.options.customKeyPrefix;
             var resque = self.browserStorage.get( prefix );
             if ( resque ) {
               target.deserialize(resque, function () {
@@ -361,7 +361,7 @@
         releaseData: function( targetFormId, fieldsToProtect ) {
           var released = false;
           var self = this;
-          var prefix = self.href + targetFormId + field.attr( "name" ) + self.options.customKeyPrefix;
+          var prefix = self.href + targetFormId + self.options.customKeyPrefix;
           self.browserStorage.remove( prefix );
           released = true;
 
