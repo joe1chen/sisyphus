@@ -188,7 +188,9 @@
                   self.bindSaveDataImmediately( field );
                 }
               } else {
-                self.bindSaveDataOnChange( field );
+                if ( ! self.options.timeout ) {
+                  self.bindSaveDataOnChange( field );
+                }
               }
             } );
           } );
@@ -228,21 +230,23 @@
         restoreAllData: function() {
           var self = this;
 
-          if ( $.isFunction( self.options.onBeforeRestore ) ) {
-            self.options.onBeforeRestore.call();
-          }
-          
           self.targets.each( function() {
             var target = $( this );
             var targetFormId = target.attr( "id" );
             var prefix = self.href + targetFormId + self.options.customKeyPrefix;
             var resque = self.browserStorage.get( prefix );
             if ( resque ) {
-              target.deserialize(resque, function () {
-                if ( $.isFunction( self.options.onRestore ) ) {
-                  self.options.onRestore.call();
-                }
-              });
+              var confirmed = true;
+              if ( $.isFunction( self.options.onBeforeRestore ) ) {
+                confirmed = self.options.onBeforeRestore.call();
+              }
+              if (confirmed) {
+                target.deserialize(resque, function () {
+                  if ( $.isFunction( self.options.onRestore ) ) {
+                    self.options.onRestore.call();
+                  }
+                });
+              }
             }
           } );
         },
